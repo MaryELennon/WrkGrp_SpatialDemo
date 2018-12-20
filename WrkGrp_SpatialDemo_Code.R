@@ -417,6 +417,9 @@ SEPTA_CensusTbl <- SEPTABuff_Census@data
 glimpse(SEPTA_CensusTbl)
 
 # Subset to the fields required
+# Due to the joins we have a lot of additional fields and weird names
+# we did not clean those up earlier in this code but we subset the data 
+# here and rename the fields so they look nice in our final spreadsheet.
 SEPTA_CensusTbl <- SEPTA_CensusTbl %>% 
   subset(select = c("GEOID.2", "NAME.y", "Median_Income_estimate"))
 
