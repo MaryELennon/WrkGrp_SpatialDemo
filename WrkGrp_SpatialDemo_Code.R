@@ -95,10 +95,12 @@ library(RColorBrewer)  # Pre-packaged color pallettes
 # line of work we create our own data. This workshop will 
 # use pre-existing census as part of a hypothetical
 # planning exercise.
+
+# Data come from the 2018 American Community Survey
+# https://www.census.gov/programs-surveys/acs/
 #  ---------------------------------------------------
 
 ## Read the data
-
 #- working directory
 #-- important concept for getting, and staying, organised with your files. 
 setwd("C:/R_Local/WrkGrp_SpatialDemo")
@@ -140,5 +142,50 @@ acs_data %>%
 
 # Quick visualization
 barplot(as.numeric(acs_data$Median_Income_estimate), na.rm=TRUE)
+
+#  ---------------------------------------------------
+## Reading Spatial Data into R
+# Spatial data comes in many shapes and sizes: GPX, Shapefile, 
+# GeoJSON, and more. The most common format is the shapefile. 
+# In this code a shapefile from file as well as from a
+# geodatabase for comprehensiveness.
+
+#  ---------------------------------------------------
+
+# Census boundaries from a file geodatabase
+
+# Set location of file geodatabase for ease
+fgdb <- "./Data/Census_Tracts_GDB/Census_GDB.gdb"
+
+# List all feature classes in a file geodatabase
+subset(rgdal::ogrDrivers(), grepl("GDB", name))
+fc_list <- rgdal::ogrListLayers(fgdb)
+print(fc_list)
+
+# Read the feature class
+census_bound <- rgdal::readOGR(dsn=fgdb,layer="Census_Boundaries_PA")
+
+# View the feature class
+tmap::qtm(census_bound)
+
+# Philadelphia County boundary from a file geodatabase
+phila_county <- rgdal::readOGR(dsn=fgdb,layer="PhilaCounty")
+
+# View the feature class
+tmap::qtm(phila_county)
+
+# Check the data that came in with the feature classes
+# Slots contain all of the pertinent information for a shapefile
+#head(phila_county@)
+#head(census_bound@)
+
+# Join the tabular ACS data
+acs_spatial <-
+  sp::merge(x = census_bound, y = acs_data, by = "GEOID")
+
+
+
+
+
 
 
