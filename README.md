@@ -2,8 +2,6 @@
 Ml/AI Working Group Spatial Demo in 'R'
 December 20th, 2018
 
-![](README_Photo.png)
-
 ## Overview
 
 This repo was created for AECOM's Machine Learning & Artificial Intelligence Working Group Meeting on December 20th, 2018. The author hopes that the code and documentation provided here will act as both a basic Introduction to 'R' and offer supplementary workflows for differing tasks involving spatial data. Traditionally, tasks involving spatial data would be completed in a GIS. Geographic Information Systems (GIS) are, “a specialist information technology (IT) used for handling mapped data” (Burrough, McDonnell, & Llyod, 2015). The most popular of these systems is ESRI's ArcGIS, a gooey interface for managing and visualizing spatial data. Increasingly, GIS related tasks are accomplished in a coding environment such as ‘R’ or ‘Python’. For those who are familiar with GIS technologies and software - this is different than coding in an ArcPy console.
@@ -36,7 +34,7 @@ Data: *.zip, for download, called Data
 ## Other Spatial Data Sources
 Most of these datasets are specific to the US and some even the Philadelphia area. There are many open datasets provided by national and local governments for countries across the world.
 
-This space will be updated with data sources relevant to the UK in the not-too-distant future.
+*This space will be updated with data sources relevant to the UK in the not-too-distant future.*
 
 [PASDA](http://www.pasda.psu.edu/) - Open GIS Data Access for Pennsylvania. Includes a variety of different types of data both raster and vector ranging from centerlines to roads to flood depth grids.
 
