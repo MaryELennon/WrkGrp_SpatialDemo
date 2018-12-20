@@ -59,6 +59,7 @@ y <- mean(x)     # compute the mean length
 # Install packages
 # This step only needs to be done if you have never
 # installed the package before.
+# Ctrl+Shft+C to un-comment
 
 # install.packages("sp")
 # install.packages("rgdal")
@@ -175,17 +176,61 @@ phila_county <- rgdal::readOGR(dsn=fgdb,layer="PhilaCounty")
 tmap::qtm(phila_county)
 
 # Check the data that came in with the feature classes
-# Slots contain all of the pertinent information for a shapefile
+# Slots contain all of the pertinent information for a shapefile.
+# Ctrl+Shft+C to un-comment
 #head(phila_county@)
 #head(census_bound@)
+
+#  ---------------------------------------------------
+## Spatial & Tabular Joins
+
+# Join the ACS data to the shapefile based on their
+# common identifier. Also do a spatial selection of
+# polygon-in-polygon.
+
+#  ---------------------------------------------------
+library(sp)
 
 # Join the tabular ACS data
 acs_spatial <-
   sp::merge(x = census_bound, y = acs_data, by = "GEOID")
 
+# Coordinate reference systems, also known as projections, 
+# are really important when working with spatial data. 
+# "The Coordinate Reference System (CRS) of spatial objects
+# defines where they are placed on the Earth's surface" 
+# (Lovelace, Cheshire, & Oldroyd, 2017). There are many 
+# different projections. Working with data in two different 
+# CRS, in one project, causes a compatibility issue. To
+# fix this re-projection of the CRS is necessary.
 
+# The ACS spatial data
+acs_spatial@proj4string
 
+# The Philadelphia county boundary
+phila_county@proj4string
 
+# Set the CRS as a variable for easy use
+WGS84 <- "+init=epsg:4326"
 
+# Re-project the data 
+phila_county <- sp::spTransform(x = phila_county, CRSobj = WGS84)
+acs_spatial <- sp::spTransform(x = acs_spatial, CRSobj = WGS84)
+
+## Please Note: Transforming/ Re-projecting the data is more than
+# just changing the CRS. Please ALWAYS make sure you are transforming/
+# re-projecting the data and not just changing the name of the CRS.
+
+# Check the CRS
+sp::proj4string(Philphila_countya_County)
+sp::proj4string(acs_spatial)
+
+# Subset census tracts only to Philadelphia County
+acs_philly <-
+  raster::intersect(phila_county,
+                    acs_spatial) 
+
+# Quick plot to check
+tmap::qtm(acs_philly)
 
 
