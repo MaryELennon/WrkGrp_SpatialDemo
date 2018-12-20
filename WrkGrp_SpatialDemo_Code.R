@@ -72,7 +72,7 @@ y <- mean(x)     # compute the mean length
 # install.packages("tmaptools")
 # install.packages("leaflet")
 # install.packages("RColorBrewer")
-# install.packages("readxl")
+# install.packages("openxlsx")
 
 # Load packages into the environment
 # I tend to comment next to my packages to remind
@@ -87,6 +87,7 @@ library(tmap) # For mapping spatial data
 library(tmaptools) # Additional tools for the tmap package
 library(leaflet) # Open-source JavaScript libraries for interactive maps
 library(RColorBrewer)  # Pre-packaged color pallettes
+library(openxlsx) # Working with Excel documentation
 
 #  ---------------------------------------------------
 ## Reading Tabular Data into R
@@ -423,30 +424,8 @@ glimpse(SEPTA_CensusTbl)
 SEPTA_CensusTbl <- SEPTA_CensusTbl %>% 
   subset(select = c("GEOID.2", "NAME.y", "Median_Income_estimate"))
 
+colnames(SEPTA_CensusTbl) <- c("GEOID", "Census_Tract_Name", "Median_Income")
+
 # Export the data table
-write_excel_csv(SEPTA_CensusTbl, 
-                "./SEPTA_Deliverables/SEPTA_Census_Table.xlsx")
-
-#  ---------------------------------------------------
-## Other Spatial Data Sources
-
-# [PASDA](http://www.pasda.psu.edu/) -
-# Open GIS Data Access for Pennsylvania. Includes a 
-# variety of different types of data both raster and vector 
-# ranging from centerlines to roads to flood depth grids.
-
-# [Open Data Philly](https://www.opendataphilly.org/) - 
-# A catalog of all the open data in the Philadelphia region 
-# (some of which is spatial). The repository covers topics 
-# from arts and culture to politics and real-estate.
-
-# [National Map Viewer](https://apps.nationalmap.gov/download/) - 
-# The data download for the National Map Viewer, maintained 
-# by the United Staes Geological Survey primarily has land 
-# cover and elevation data. This is a good place to get a 
-# raster to play with.
-
-# [Open Government](https://www.data.gov/open-gov/) - 
-# Open data repository for the US government covering 
-# everything from agriculture to maritime and finance.
-#  ---------------------------------------------------
+write.xlsx(SEPTA_CensusTbl, 
+           "./SEPTA_Deliverables/SEPTA_Census_Table.xlsx")
