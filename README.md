@@ -8,7 +8,7 @@ This repo was created for AECOM's Machine Learning & Artificial Intelligence Wor
 
 Although, there are certain GIS tasks that are better suited for a traditional GIS environment, there are many that are best to R or the Conda environment for Python. The control and reproducibility, offered in the coding environment, is leaps and bounds ahead of anything a traditional GIS can do. As capabilities around spatial data manipulation and analysis in R increase more people, GIS Specialists and Novices, are looking to use R as a GIS.
 
-The contents of this repo are very simplistic but I hope any user of this repo enjoys getting their feet wet!!!!
+The contents of this repo are very simplistic but I hope any user enjoys getting their feet wet!!!!
 
 ## Documation 
 Code:
