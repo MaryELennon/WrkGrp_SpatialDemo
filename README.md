@@ -36,7 +36,7 @@ Data: *.zip, for download, called Data
 ## Other Spatial Data Sources
 Most of these datasets are specific to the US and some even the Philadelphia area. There are many open datasets provided by national and local governments for countries across the world.
 
-*This space will be updated with data sources relevant to the UK in the not-too-distant future.
+*This space will be updated with data sources relevant to the UK in the not-too-distant future.*
 
 [PASDA](http://www.pasda.psu.edu/) - Open GIS Data Access for Pennsylvania. Includes a variety of different types of data both raster and vector ranging from centerlines to roads to flood depth grids.
 
