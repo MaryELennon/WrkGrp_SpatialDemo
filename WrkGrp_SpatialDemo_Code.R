@@ -294,3 +294,72 @@ tm_shape(acs_philly) + tm_fill(
     legend.bg.alpha = 0,
     frame = FALSE
   )
+
+#  ---------------------------------------------------
+## Layering Data & Interactive Maps
+
+# For our planning project with SEPTA we need to
+# include their data, locations of RR Stations and
+# lines. The goal is to create an interactive web map 
+# that could be embedded on a client dashboard.
+
+#  ---------------------------------------------------
+library(sp)
+library(rgdal)
+library(tmap)
+library(tmaptools)
+library(leaflet)
+
+# Regional Rail shapefile
+# Note: This is from file and not the geo-database
+SEPTA_RR <-
+  readOGR(dsn = "./Data/SEPTA_RegionalRail",
+          layer = "SEPTAGISRegionalRailLines_201207")
+
+# SEPTA Stations shapefile
+SEPTA_Staions <-
+  readOGR(dsn = "./Data/SEPTA_RegionalRail",
+          layer = "SEPTAGISRegionalRailStations_2016")
+
+# Make sure it is in the correct CRs
+SEPTA_RR <- sp::spTransform(x = SEPTA_RR, CRSobj = WGS84)
+SEPTA_Staions <- sp::spTransform(x = SEPTA_Staions, CRSobj = WGS84)
+
+# Interactive webmap
+# Other basemap options here: http://leaflet-extras.github.io/leaflet-providers/preview/
+tmap_mode("view") # View for interactive
+
+tm_basemap(providers$Esri.WorldTopoMap) +
+  tm_shape(acs_philly) + 
+  tm_fill(
+    "Median_Income_estimate",
+    style = "jenks",
+    n = 5,
+    palette = "Reds",
+    legend.hist = TRUE
+  ) +
+  tm_shape(SEPTA_RR) +
+  tm_lines(col = "black", scale = 1, alpha = 0.25) +
+  tm_shape(SEPTA_Staions) +
+  tm_dots(
+    col = "black",
+    scale = 1.5,
+    alpha = 0.7,
+    shape = 16
+  ) +
+  tm_layout(
+    "ACS 2017 - Median Income",
+    legend.title.size = 1,
+    legend.text.size = 0.6,
+    legend.width = 1.0,
+    legend.outside = TRUE,
+    legend.bg.color = "white",
+    legend.bg.alpha = 0,
+    frame = FALSE
+  )
+
+#  ---------------------------------------------------
+## Buffers & Further Analysis
+
+
+#  ---------------------------------------------------
