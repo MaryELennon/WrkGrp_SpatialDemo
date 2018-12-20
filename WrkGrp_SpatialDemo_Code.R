@@ -20,11 +20,11 @@
 
 # In object oriented programming, the data is important
 # An object is a thing or idea that you want manipulate
-# analyze in your program, An object can be anything, 
+# analyze in your program, An object can be anything,
 # example, employee, bank account, car etc.
 #  ---------------------------------------------------
 
-## Interacting with R & RStudio 
+## Interacting with R & RStudio
 
 # - quick tour of console, script editor, plots, environment
 # - using console as calculator, assigning values to objects, using objects
@@ -43,8 +43,8 @@ x <- c(4, 7, 12) # length measurements of three artefacts
 x
 
 y <- mean(x)     # compute the mean length
-?mean            # get help on a specific function
-??median         # search help docs
+? mean            # get help on a specific function
+?  ? median         # search help docs
 
 
 #  ---------------------------------------------------
@@ -54,7 +54,7 @@ y <- mean(x)     # compute the mean length
 # tools used in R.
 #  ---------------------------------------------------
 
-# Packages extend the functionality of R. 
+# Packages extend the functionality of R.
 
 # Install packages
 # This step only needs to be done if you have never
@@ -91,9 +91,9 @@ library(RColorBrewer)  # Pre-packaged color pallettes
 #  ---------------------------------------------------
 ## Reading Tabular Data into R
 
-# Quick note: I have provided the data and shapefiles 
+# Quick note: I have provided the data and shapefiles
 # that will be needed to follow this demo. Often, in our
-# line of work we create our own data. This workshop will 
+# line of work we create our own data. This workshop will
 # use pre-existing census as part of a hypothetical
 # planning exercise.
 
@@ -103,7 +103,7 @@ library(RColorBrewer)  # Pre-packaged color pallettes
 
 ## Read the data
 #- working directory
-#-- important concept for getting, and staying, organised with your files. 
+#-- important concept for getting, and staying, organised with your files.
 setwd("C:/R_Local/WrkGrp_SpatialDemo")
 
 # Read in the dataset
@@ -112,7 +112,7 @@ acs_data <- read_excel("./Data/acs_data.xlsx")
 
 #- tables in word docs and PDFs are possible but they require more work.
 
-## Inspecting & cleaning data 
+## Inspecting & cleaning data
 
 # - basic functions for seeing what we have
 
@@ -134,20 +134,21 @@ View(acs_data)
 MedianIncomeEst <- acs_data$Median_Income_estimate
 
 # Create new column (aka attribute)
-acs_data$MedIncQuart <- ntile(x = acs_data$Median_Income_estimate, n = 4)
+acs_data$MedIncQuart <-
+  ntile(x = acs_data$Median_Income_estimate, n = 4)
 
 # Filter the data
-acs_data %>% 
+acs_data %>%
   subset(select = c("NAME", "Median_Income_estimate")) %>%
   filter(Median_Income_estimate > 50000)
 
 # Quick visualization
-barplot(as.numeric(acs_data$Median_Income_estimate), na.rm=TRUE)
+barplot(as.numeric(acs_data$Median_Income_estimate), na.rm = TRUE)
 
 #  ---------------------------------------------------
 ## Reading Spatial Data into R
-# Spatial data comes in many shapes and sizes: GPX, Shapefile, 
-# GeoJSON, and more. The most common format is the shapefile. 
+# Spatial data comes in many shapes and sizes: GPX, Shapefile,
+# GeoJSON, and more. The most common format is the shapefile.
 # In this code a shapefile from file as well as from a
 # geodatabase for comprehensiveness.
 
@@ -164,13 +165,14 @@ fc_list <- rgdal::ogrListLayers(fgdb)
 print(fc_list)
 
 # Read the feature class
-census_bound <- rgdal::readOGR(dsn=fgdb,layer="Census_Boundaries_PA")
+census_bound <-
+  rgdal::readOGR(dsn = fgdb, layer = "Census_Boundaries_PA")
 
 # View the feature class
 tmap::qtm(census_bound)
 
 # Philadelphia County boundary from a file geodatabase
-phila_county <- rgdal::readOGR(dsn=fgdb,layer="PhilaCounty")
+phila_county <- rgdal::readOGR(dsn = fgdb, layer = "PhilaCounty")
 
 # View the feature class
 tmap::qtm(phila_county)
@@ -195,12 +197,12 @@ library(sp)
 acs_spatial <-
   sp::merge(x = census_bound, y = acs_data, by = "GEOID")
 
-# Coordinate reference systems, also known as projections, 
-# are really important when working with spatial data. 
+# Coordinate reference systems, also known as projections,
+# are really important when working with spatial data.
 # "The Coordinate Reference System (CRS) of spatial objects
-# defines where they are placed on the Earth's surface" 
-# (Lovelace, Cheshire, & Oldroyd, 2017). There are many 
-# different projections. Working with data in two different 
+# defines where they are placed on the Earth's surface"
+# (Lovelace, Cheshire, & Oldroyd, 2017). There are many
+# different projections. Working with data in two different
 # CRS, in one project, causes a compatibility issue. To
 # fix this re-projection of the CRS is necessary.
 
@@ -213,7 +215,7 @@ phila_county@proj4string
 # Set the CRS as a variable for easy use
 WGS84 <- "+init=epsg:4326"
 
-# Re-project the data 
+# Re-project the data
 phila_county <- sp::spTransform(x = phila_county, CRSobj = WGS84)
 acs_spatial <- sp::spTransform(x = acs_spatial, CRSobj = WGS84)
 
@@ -228,9 +230,67 @@ sp::proj4string(acs_spatial)
 # Subset census tracts only to Philadelphia County
 acs_philly <-
   raster::intersect(phila_county,
-                    acs_spatial) 
+                    acs_spatial)
 
 # Quick plot to check
 tmap::qtm(acs_philly)
 
 
+#  ---------------------------------------------------
+## Data Visualization
+
+# Data visualization  is an important part of any
+# analysts jobs. Maps can send particularly powerful
+# messages. A range of useful visuals for reports
+# through interactive maps to embed on a client facing
+# portal can be made in R.
+
+#  ---------------------------------------------------
+library(tmap)
+library(tmaptools)
+library(RColorBrewer)
+
+# Quick review structure of the data
+str(acs_philly@data) # Note the data types
+
+# Convert data types
+acs_philly@data$Median_Income_estimate <- as.numeric(acs_philly@data$Median_Income_estimate)
+acs_philly@data$MedIncQuart <- as.factor(acs_philly@data$MedIncQuart)
+
+# Qucik map to show the variable of interest
+tmap::qtm(acs_philly,
+          fill = "MedIncQuart",
+          fill.breaks = c(0, 1, 2, 3, 4, 5))
+
+# ColorBrewer is a common go-to color palette choices
+
+# To see all possible ColorBrewer options use the following function:
+RColorBrewer::display.brewer.all()
+
+# For more information on ColorBrewer: http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
+
+# A map using a ColorBrewer pallette:
+tm_shape(acs_philly) + 
+  tm_fill("MedIncQuart", palette = "Blues")
+
+tm_shape(acs_philly) + 
+  tm_fill("MedIncQuart", palette = "-Blues") # Reversed
+
+# Play with further maps details and repesentations of the data (Jenks breaks)
+tm_shape(acs_philly) + tm_fill(
+  "Median_Income_estimate",
+  style = "jenks",
+  n = 5,
+  palette = "Reds",
+  legend.hist = TRUE
+) +
+  tm_layout(
+    "ACS 2017 - Median Income",
+    legend.title.size = 1,
+    legend.text.size = 0.6,
+    legend.width = 1.0,
+    legend.outside = TRUE,
+    legend.bg.color = "white",
+    legend.bg.alpha = 0,
+    frame = FALSE
+  )
