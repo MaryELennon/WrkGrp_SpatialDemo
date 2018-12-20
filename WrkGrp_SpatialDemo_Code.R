@@ -107,7 +107,7 @@ library(RColorBrewer)  # Pre-packaged color pallettes
 setwd("C:/R_Local/WrkGrp_SpatialDemo")
 
 # Read in the dataset
-acs_data <- read_excel("./Data/acs_data.xlsx")
+acs_data <- readxl::read_excel("./Data/acs_data.xlsx")
 # output is data frame
 
 #- tables in word docs and PDFs are possible but they require more work.
@@ -277,7 +277,9 @@ tm_shape(acs_philly) +
   tm_fill("MedIncQuart", palette = "-Blues") # Reversed
 
 # Play with further maps details and repesentations of the data (Jenks breaks)
-tm_shape(acs_philly) + tm_fill(
+SEPTA_Map <-
+  tm_shape(acs_philly) + 
+  tm_fill(
   "Median_Income_estimate",
   style = "jenks",
   n = 5,
@@ -294,6 +296,9 @@ tm_shape(acs_philly) + tm_fill(
     legend.bg.alpha = 0,
     frame = FALSE
   )
+
+# Save map as a deliverable (or part of a deliverable to SEPTA)
+tmap_save(SEPTA_Map, "./SEPTA_Deliverables/SEPTA_Map.jpg")
 
 #  ---------------------------------------------------
 ## Layering Data & Interactive Maps
@@ -361,5 +366,84 @@ tm_basemap(providers$Esri.WorldTopoMap) +
 #  ---------------------------------------------------
 ## Buffers & Further Analysis
 
+# SEPTA wants to know which census tracts fall within
+# 100 ft. of their staions and what the median income
+# for each of those census tracts is.
 
+# The buffering function uses the units that the
+# coordinate system is in.
+#  ---------------------------------------------------
+
+# Buffer the data
+SEPTA_Buffer <- raster::buffer(SEPTA_Staions, width = 30) # meters
+
+# Quick map
+tm_shape(acs_philly) + 
+  tm_fill(
+    "Median_Income_estimate",
+    style = "jenks",
+    n = 5,
+    palette = "Greys",
+    legend.hist = TRUE
+  ) +
+  tm_shape(SEPTA_RR) +
+  tm_lines(col = "black", scale = 1, alpha = 0.25) +
+  tm_shape(SEPTA_Buffer) +
+  tm_polygons(col = "red", alpha = 0.7) +
+  tm_shape(SEPTA_Staions) +
+  tm_dots(
+    col = "black",
+    scale = 0.5,
+    alpha = 0,
+    shape = 16
+  )
+
+# Spatial selection - census tracts overlap buffers
+SEPTABuff_Census <-
+  raster::intersect(SEPTA_Buffer,
+                    acs_philly)
+
+# Note that the raster package made a different data type (subtle)
+poly_df <- as.data.frame(SEPTABuff_Census)
+# do some staff with "poly_df" that doesn't support SpatialPolygonsDataFrame
+# then convert it to SPDF back again
+s_poly <- SpatialPolygonsDataFrame(SEPTABuff_Census, poly_df)
+
+
+# Extract the tabular component of the SEPTA Buffer
+SEPTA_CensusTbl <- SEPTABuff_Census@data
+
+# View the results
+glimpse(SEPTA_CensusTbl)
+
+# Subset to the fields required
+SEPTA_CensusTbl <- SEPTA_CensusTbl %>% 
+  subset(select = c("GEOID.2", "NAME.y", "Median_Income_estimate"))
+
+# Export the data table
+write_excel_csv(SEPTA_CensusTbl, 
+                "./SEPTA_Deliverables/SEPTA_Census_Table.xlsx")
+
+#  ---------------------------------------------------
+## Other Spatial Data Sources
+
+# [PASDA](http://www.pasda.psu.edu/) -
+# Open GIS Data Access for Pennsylvania. Includes a 
+# variety of different types of data both raster and vector 
+# ranging from centerlines to roads to flood depth grids.
+
+# [Open Data Philly](https://www.opendataphilly.org/) - 
+# A catalog of all the open data in the Philadelphia region 
+# (some of which is spatial). The repository covers topics 
+# from arts and culture to politics and real-estate.
+
+# [National Map Viewer](https://apps.nationalmap.gov/download/) - 
+# The data download for the National Map Viewer, maintained 
+# by the United Staes Geological Survey primarily has land 
+# cover and elevation data. This is a good place to get a 
+# raster to play with.
+
+# [Open Government](https://www.data.gov/open-gov/) - 
+# Open data repository for the US government covering 
+# everything from agriculture to maritime and finance.
 #  ---------------------------------------------------
